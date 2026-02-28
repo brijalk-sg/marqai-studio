@@ -1,38 +1,47 @@
 import { useState } from 'react'
+import api from '../../../lib/api'
 import { INDUSTRY_GROUPS } from '../Constants'
 
 interface Step1Props {
   onNext: () => void
 }
 
-// Mock keyword generation — replace with real API call later
-const generateMockKeywords = (niche: string, industry: string): string[] => {
-  const base = niche || industry
-  const suffixes = [
-    'tips', 'trends', 'strategies', 'tools', 'best practices',
-    'for beginners', 'guide', 'examples', 'ideas', 'solutions',
-    'software', 'services', 'growth', 'automation', 'insights',
-  ]
-  return suffixes.map((s) => `${base} ${s}`)
-}
-
 export const Step1 = ({ onNext }: Step1Props) => {
   const [niche, setNiche] = useState('')
   const [industry, setIndustry] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [industrySearch, setIndustrySearch] = useState('')
   const [keywords, setKeywords] = useState<string[]>([])
   const [newKeyword, setNewKeyword] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
+  const [error, setError] = useState('')
   const hasGenerated = keywords.length > 0
+
+  const filteredGroups = industrySearch.trim()
+    ? INDUSTRY_GROUPS.map((group) => ({
+        ...group,
+        industries: group.industries.filter((item) =>
+          item.toLowerCase().includes(industrySearch.toLowerCase())
+        ),
+      })).filter((group) => group.industries.length > 0)
+    : INDUSTRY_GROUPS
 
   const handleGenerate = async () => {
     if (!niche.trim() || !industry) return
     setIsGenerating(true)
-    // Simulate API delay
-    await new Promise((r) => setTimeout(r, 800))
-    const generated = generateMockKeywords(niche.trim(), industry)
-    setKeywords(generated)
-    setIsGenerating(false)
+    setError('')
+    try {
+      const { data } = await api.post('save-project', {
+        website: niche.trim(),
+        industry,
+      });
+      console.log(data)
+      setKeywords(data.keywords ?? [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong')
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   const addKeyword = () => {
@@ -97,31 +106,50 @@ export const Step1 = ({ onNext }: Step1Props) => {
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute z-10 mt-1 w-full max-h-72 overflow-y-auto rounded-lg bg-surface-800 border border-surface-700 shadow-lg">
-              {INDUSTRY_GROUPS.map((group) => (
-                <div key={group.category}>
-                  <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary-400 bg-surface-800 sticky top-0">
-                    {group.category}
+            <div className="absolute z-10 mt-1 w-full max-h-72 rounded-lg bg-surface-800 border border-surface-700 shadow-lg flex flex-col">
+              <div className="p-2 border-b border-surface-700">
+                <input
+                  type="text"
+                  value={industrySearch}
+                  onChange={(e) => setIndustrySearch(e.target.value)}
+                  placeholder="Search industries..."
+                  autoFocus
+                  className="w-full rounded-md bg-surface-700 border border-surface-600 px-3 py-2 text-sm text-white placeholder:text-surface-500 outline-none focus:border-primary-500 transition-colors"
+                />
+              </div>
+              <div className="overflow-y-auto flex-1">
+                {filteredGroups.length > 0 ? (
+                  filteredGroups.map((group) => (
+                    <div key={group.category}>
+                      <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary-400 bg-surface-800 sticky top-0">
+                        {group.category}
+                      </div>
+                      {group.industries.map((item) => (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() => {
+                            setIndustry(item)
+                            setIsDropdownOpen(false)
+                            setIndustrySearch('')
+                          }}
+                          className={`w-full text-left px-4 py-2.5 text-sm cursor-pointer transition-colors ${
+                            industry === item
+                              ? 'bg-primary-600/20 text-primary-300'
+                              : 'text-surface-200 hover:bg-surface-700'
+                          }`}
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-4 py-6 text-sm text-surface-500 text-center">
+                    No industries found
                   </div>
-                  {group.industries.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => {
-                        setIndustry(item)
-                        setIsDropdownOpen(false)
-                      }}
-                      className={`w-full text-left px-4 py-2.5 text-sm cursor-pointer transition-colors ${
-                        industry === item
-                          ? 'bg-primary-600/20 text-primary-300'
-                          : 'text-surface-200 hover:bg-surface-700'
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              ))}
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -142,6 +170,10 @@ export const Step1 = ({ onNext }: Step1Props) => {
             </>
           )}
         </button>
+
+        {error && (
+          <p className="mt-3 text-sm text-error">{error}</p>
+        )}
       </div>
 
       {/* Right — Keywords */}

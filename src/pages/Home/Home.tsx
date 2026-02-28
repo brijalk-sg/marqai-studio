@@ -25,7 +25,7 @@ export const Home = () => {
     <div className="min-h-dvh flex flex-col">
       {/* Top bar */}
       <header className="border-b border-surface-800 bg-surface-950/80 backdrop-blur-sm sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-center">
+        <div className="mx-auto px-6 h-16 flex items-center justify-start">
           {/* Logo + title */}
           <div className="flex items-center gap-3">
             <img src="/icon.svg" alt="Marqai Studio" height={48} width={68} />
@@ -98,7 +98,7 @@ export const Home = () => {
       </div>
       {/* Step content */}
       <main className="flex-1 flex items-center justify-center px-6 py-10">
-        <div className="w-full max-w-5xl">
+        <div className={`w-full ${currentStep === 4 ? 'max-w-7xl' : 'max-w-5xl'}`}>
           {currentStep === 1 && <Step1 onNext={handleStep1Next} />}
           {currentStep === 2 && <Step2 onNext={goNext} onBack={goBack} />}
           {currentStep === 3 && <Step3 onNext={goNext} onBack={goBack} />}
