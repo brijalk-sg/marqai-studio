@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Icon, Badge } from '../../components/ui'
 import { css } from '../../lib/styles'
-import { topics, strategy, researchSummary, intentColor, stageColor, diffColor, diffNum } from '../../data/mockData'
+import { topics as defaultTopics, strategy as defaultStrategy, researchSummary as defaultSummary, intentColor, stageColor, diffColor, diffNum } from '../../data/mockData'
+import type { Topic } from '../../data/mockData'
+import api from '../../lib/api'
 
 export const Research = () => {
   const navigate = useNavigate()
@@ -17,15 +19,29 @@ export const Research = () => {
   const [filterIntent, setFilterIntent] = useState("all")
   const [filterStage, setFilterStage] = useState("all")
   const [sortBy, setSortBy] = useState("recommended")
-  const [formData, setFormData] = useState({
-    niche: "AI-powered fintech solutions for fraud detection",
-    goals: "Drive organic traffic and generate qualified leads for our AI fraud detection platform targeting mid-market banks",
-    target_audience: "VP of Risk, Compliance Officers, and CTOs at mid-market banks and credit unions",
-    competitors: ["featurespace.com/blog", "feedzai.com/resources", "sift.com/blog"],
-    content_types: ["blog", "linkedin"],
+  const [formData, setFormData] = useState<{
+    niche: string;
+    goals: string;
+    target_audience: string;
+    competitors: string[];
+    content_types: string[];
+    region: string;
+  }>({
+    niche: "",
+    goals: "",
+    target_audience: "",
+    competitors: [],
+    content_types: [],
     region: "US",
   })
   const [compInput, setCompInput] = useState("")
+  const [apiError, setApiError] = useState("")
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+
+  // API response data (falls back to mock data initially)
+  const [topics, setTopics] = useState<Topic[]>(defaultTopics)
+  const [strategy, setStrategy] = useState(defaultStrategy)
+  const [researchSummary, setResearchSummary] = useState(defaultSummary)
 
   const filteredTopics = topics
     .filter((t) => filterIntent === "all" || t.intent === filterIntent)
@@ -36,10 +52,67 @@ export const Research = () => {
       return 0;
     });
 
-  const startResearch = () => {
-    setResearchPhase("loading"); setLoadingProgress(0);
-    const stages = [{ p: 15, s: "Analyzing niche landscape..." }, { p: 35, s: "Researching trending topics & SERP data..." }, { p: 55, s: "Generating keyword clusters..." }, { p: 75, s: "Running competitor content analysis..." }, { p: 90, s: "Building strategic recommendations..." }, { p: 100, s: "Research complete!" }];
-    stages.forEach((st, i) => { setTimeout(() => { setLoadingProgress(st.p); setLoadingStage(st.s); if (st.p === 100) setTimeout(() => setResearchPhase("results"), 500); }, (i + 1) * 1100); });
+  const startResearch = async () => {
+    const errors: Record<string, string> = {}
+    if (!formData.niche.trim()) errors.niche = "Industry / Niche is required"
+    if (!formData.goals.trim()) errors.goals = "Content Goals is required"
+    if (!formData.target_audience.trim()) errors.target_audience = "Target Audience is required"
+    setValidationErrors(errors)
+    if (Object.keys(errors).length > 0) return
+
+    setResearchPhase("loading")
+    setLoadingProgress(0)
+    setApiError("")
+
+    // Start progress animation
+    const stages = [
+      { p: 15, s: "Analyzing niche landscape..." },
+      { p: 35, s: "Researching trending topics & SERP data..." },
+      { p: 55, s: "Generating keyword clusters..." },
+      { p: 75, s: "Running competitor content analysis..." },
+    ]
+    stages.forEach((st, i) => {
+      setTimeout(() => { setLoadingProgress(st.p); setLoadingStage(st.s) }, (i + 1) * 1100)
+    })
+
+    try {
+      const regionMap: Record<string, string> = {
+        US: "United States", UK: "United Kingdom", CA: "Canada", AU: "Australia",
+        DE: "Germany", FR: "France", IN: "India", SG: "Singapore",
+        AE: "United Arab Emirates", BR: "Brazil", JP: "Japan", KR: "South Korea",
+        NL: "Netherlands", SE: "Sweden", CH: "Switzerland",
+        EU: "Europe", APAC: "Asia Pacific", LATAM: "Latin America", MEA: "Middle East & Africa", Global: "Global",
+      }
+      const res = await api.post("marqai/research", {
+        industry: formData.niche,
+        contentGoals: formData.goals,
+        targetAudience: formData.target_audience,
+        knownCompetitors: formData.competitors,
+        contentPlatform: "linkedin",
+        region: regionMap[formData.region] || formData.region,
+      });
+
+      const data = res.data
+
+      // Populate state from API response if available
+      if (data.topics && Array.isArray(data.topics)) setTopics(data.topics)
+      if (data.strategy) setStrategy(data.strategy)
+      if (data.researchSummary) setResearchSummary(data.researchSummary)
+
+      setLoadingProgress(90)
+      setLoadingStage("Building strategic recommendations...")
+      setTimeout(() => {
+        setLoadingProgress(100)
+        setLoadingStage("Research complete!")
+        setTimeout(() => setResearchPhase("results"), 500)
+      }, 600)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Research failed"
+      setApiError(message)
+      setLoadingProgress(100)
+      setLoadingStage("Research complete!")
+      setTimeout(() => setResearchPhase("results"), 500)
+    }
   };
 
   if (researchPhase === "loading") return (
@@ -84,6 +157,14 @@ export const Research = () => {
           <button onClick={() => setResearchPhase("input")} style={{ padding: "7px 12px", borderRadius: 7, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)", color: "#94a3b8", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>← New Research</button>
         </div>
       </div>
+      {/* API Error Banner */}
+      {apiError && (
+        <div style={{ padding: "10px 14px", borderRadius: 9, background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+          <Icon name="alert" size={14} color="#fca5a5" />
+          <span style={{ fontSize: 12, color: "#fca5a5", fontWeight: 600 }}>API Error: {apiError}</span>
+          <span style={{ fontSize: 11, color: "#64748b" }}>— Showing cached results instead</span>
+        </div>
+      )}
       {/* Research Summary */}
       <div style={{ ...css.card, border: "1px solid rgba(99,102,241,0.1)", padding: 16, marginBottom: 12 }}>
         <h3 style={{ fontSize: 12, fontWeight: 700, color: "#818cf8", margin: "0 0 9px" }}>🔬 Research Summary</h3>
@@ -295,16 +376,19 @@ export const Research = () => {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#94a3b8", marginBottom: 4 }}>Industry / Niche *</label>
-            <input value={formData.niche} onChange={(e) => setFormData({ ...formData, niche: e.target.value })} style={css.input} />
+            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: validationErrors.niche ? "#fca5a5" : "#94a3b8", marginBottom: 4 }}>Industry / Niche *</label>
+            <input value={formData.niche} onChange={(e) => { setFormData({ ...formData, niche: e.target.value }); if (validationErrors.niche) setValidationErrors((v) => Object.fromEntries(Object.entries(v).filter(([k]) => k !== "niche"))) }} style={{ ...css.input, ...(validationErrors.niche ? { border: "1px solid rgba(239,68,68,0.5)" } : {}) }} />
+            {validationErrors.niche && <p style={{ fontSize: 11, color: "#fca5a5", margin: "4px 0 0" }}>{validationErrors.niche}</p>}
           </div>
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#94a3b8", marginBottom: 4 }}>Content Goals *</label>
-            <textarea value={formData.goals} onChange={(e) => setFormData({ ...formData, goals: e.target.value })} rows={2} style={{ ...css.input, resize: "vertical" }} />
+            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: validationErrors.goals ? "#fca5a5" : "#94a3b8", marginBottom: 4 }}>Content Goals *</label>
+            <textarea value={formData.goals} onChange={(e) => { setFormData({ ...formData, goals: e.target.value }); if (validationErrors.goals) setValidationErrors((v) => Object.fromEntries(Object.entries(v).filter(([k]) => k !== "goals"))) }} rows={2} style={{ ...css.input, resize: "vertical", ...(validationErrors.goals ? { border: "1px solid rgba(239,68,68,0.5)" } : {}) }} />
+            {validationErrors.goals && <p style={{ fontSize: 11, color: "#fca5a5", margin: "4px 0 0" }}>{validationErrors.goals}</p>}
           </div>
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#94a3b8", marginBottom: 4 }}>Target Audience *</label>
-            <textarea value={formData.target_audience} onChange={(e) => setFormData({ ...formData, target_audience: e.target.value })} rows={2} style={{ ...css.input, resize: "vertical" }} />
+            <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: validationErrors.target_audience ? "#fca5a5" : "#94a3b8", marginBottom: 4 }}>Target Audience *</label>
+            <textarea value={formData.target_audience} onChange={(e) => { setFormData({ ...formData, target_audience: e.target.value }); if (validationErrors.target_audience) setValidationErrors((v) => Object.fromEntries(Object.entries(v).filter(([k]) => k !== "target_audience"))) }} rows={2} style={{ ...css.input, resize: "vertical", ...(validationErrors.target_audience ? { border: "1px solid rgba(239,68,68,0.5)" } : {}) }} />
+            {validationErrors.target_audience && <p style={{ fontSize: 11, color: "#fca5a5", margin: "4px 0 0" }}>{validationErrors.target_audience}</p>}
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             <div>
@@ -322,16 +406,35 @@ export const Research = () => {
               </div>
             </div>
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#94a3b8", marginBottom: 4 }}>Content Types</label>
+              {/* <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#94a3b8", marginBottom: 4 }}>Content Types</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 10 }}>
                 {["blog", "linkedin", "twitter", "video"].map((t) => {
                   const on = formData.content_types.includes(t);
                   return <button key={t} onClick={() => setFormData({ ...formData, content_types: on ? formData.content_types.filter((x) => x !== t) : [...formData.content_types, t] })} style={{ padding: "5px 10px", borderRadius: 6, border: on ? "1px solid rgba(99,102,241,0.3)" : "1px solid rgba(255,255,255,0.08)", background: on ? "rgba(99,102,241,0.1)" : "transparent", color: on ? "#c7d2fe" : "#64748b", fontSize: 11, fontWeight: 600, cursor: "pointer", textTransform: "capitalize" }}>{t}</button>;
                 })}
-              </div>
+              </div> */}
               <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#94a3b8", marginBottom: 4 }}>Region</label>
-              <select value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} style={{ ...css.input }}>
-                <option value="US">United States</option><option value="UK">United Kingdom</option><option value="EU">Europe</option><option value="Global">Global</option>
+              <select value={formData.region} onChange={(e) => setFormData({ ...formData, region: e.target.value })} style={{ ...css.input, background: '#0f1629' }}>
+                <option value="US">United States</option>
+                <option value="UK">United Kingdom</option>
+                <option value="CA">Canada</option>
+                <option value="AU">Australia</option>
+                <option value="DE">Germany</option>
+                <option value="FR">France</option>
+                <option value="IN">India</option>
+                <option value="SG">Singapore</option>
+                <option value="AE">United Arab Emirates</option>
+                <option value="BR">Brazil</option>
+                <option value="JP">Japan</option>
+                <option value="KR">South Korea</option>
+                <option value="NL">Netherlands</option>
+                <option value="SE">Sweden</option>
+                <option value="CH">Switzerland</option>
+                <option value="EU">Europe</option>
+                <option value="APAC">Asia Pacific</option>
+                <option value="LATAM">Latin America</option>
+                <option value="MEA">Middle East & Africa</option>
+                <option value="Global">Global</option>
               </select>
             </div>
           </div>
