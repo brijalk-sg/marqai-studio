@@ -3,18 +3,18 @@
 @theme {
   /* --- MARQAI Studio Palette --- */
 
-  /* Primary – vibrant indigo accent */
-  --color-primary-50: #eef2ff;
-  --color-primary-100: #e0e7ff;
-  --color-primary-200: #c7d2fe;
-  --color-primary-300: #a5b4fc;
-  --color-primary-400: #818cf8;
-  --color-primary-500: #6366f1;
-  --color-primary-600: #4f46e5;
-  --color-primary-700: #4338ca;
-  --color-primary-800: #3730a3;
-  --color-primary-900: #312e81;
-  --color-primary-950: #1e1b4b;
+  /* Primary – brand blue (#3E5BFE) */
+  --color-primary-50: #eef0ff;
+  --color-primary-100: #e0e4ff;
+  --color-primary-200: #c6cdff;
+  --color-primary-300: #a3aeff;
+  --color-primary-400: #7583fe;
+  --color-primary-500: #3e5bfe;
+  --color-primary-600: #1e3aee;
+  --color-primary-700: #142dd5;
+  --color-primary-800: #1627ac;
+  --color-primary-900: #18268a;
+  --color-primary-950: #101752;
 
   /* Surface – dark neutrals for backgrounds & cards */
   --color-surface-50: #f8fafc;

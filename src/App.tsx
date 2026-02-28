@@ -1,13 +1,21 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Dashboard } from './pages/Dashboard/Dashboard'
+import { Home } from './pages/Home/Home'
+// import LoginPage from './pages/LoginPage'
+// import SignupPage from './pages/SignupPage'
+
 function App() {
   return (
-    <div className="flex min-h-dvh items-center justify-center">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight text-primary-400">
-          MARQAI Studio
-        </h1>
-        <p className="text-surface-400">Ready to build.</p>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {/* <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} /> */}
+
+        <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
