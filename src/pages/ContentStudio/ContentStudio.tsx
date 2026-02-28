@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Icon, Badge, StatCard } from '../../components/ui'
 import { css } from '../../lib/styles'
@@ -17,6 +17,8 @@ export const ContentStudio = () => {
   const [briefError, setBriefError] = useState("")
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [loadingStage, setLoadingStage] = useState("")
+  const [allBriefs, setAllBriefs] = useState<ContentBrief[]>(contentBriefs)
+  const [publishToast, setPublishToast] = useState("")
 
   useEffect(() => {
     const state = location.state as { topic?: unknown; industry?: string; contentGoals?: string; targetAudience?: string; contentPlatform?: string; region?: string } | null
@@ -83,6 +85,7 @@ export const ContentStudio = () => {
       }
 
       setSelectedBrief(brief)
+      setAllBriefs(prev => [brief, ...prev])
       setLoadingProgress(100)
       setLoadingStage("Brief generated!")
       setTimeout(() => setBriefLoading(false), 500)
@@ -135,6 +138,7 @@ export const ContentStudio = () => {
       }
 
       setSelectedBrief(mockBrief)
+      setAllBriefs(prev => [mockBrief, ...prev])
       setLoadingProgress(100)
       setLoadingStage("Brief generated (offline mode)")
       setTimeout(() => setBriefLoading(false), 500)
@@ -145,6 +149,27 @@ export const ContentStudio = () => {
     setImproving(true); setImproveProgress(0);
     [15, 35, 60, 85, 100].forEach((p, i) => { setTimeout(() => { setImproveProgress(p); if (p === 100) setTimeout(() => setImproving(false), 500); }, (i + 1) * 700); });
   };
+
+  const handlePublish = () => {
+    if (!selectedBrief) return
+    const published: ContentBrief = {
+      ...selectedBrief,
+      status: "published",
+      publishedOn: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    }
+    setSelectedBrief(published)
+    setAllBriefs(prev => {
+      const exists = prev.some(b => b.id === published.id)
+      return exists ? prev.map(b => b.id === published.id ? published : b) : [published, ...prev]
+    })
+    setPublishToast("Content published successfully!")
+    setTimeout(() => setPublishToast(""), 3000)
+  }
+
+  const handleScheduleToCalendar = () => {
+    if (!selectedBrief) return
+    navigate("/calendar", { state: { scheduleBrief: { id: selectedBrief.id, title: selectedBrief.title, keyword: selectedBrief.keyword, type: "blog" } } })
+  }
 
   const renderLoading = () => (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "55vh" }}>
@@ -192,7 +217,7 @@ export const ContentStudio = () => {
           </div>
           <div style={{ display: "flex", gap: 7 }}>
             <button onClick={simulateImprove} disabled={improving} style={{ ...css.btn, border: "1px solid rgba(139,92,246,0.3)", background: "rgba(139,92,246,0.1)", color: "#a78bfa" }}>{improving ? `Improving... ${improveProgress}%` : "⚡ AI Improve"}</button>
-            <button style={{ ...css.btn, border: "none", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff" }}><Icon name="send" size={12} color="#fff" /> Send for Approval</button>
+            {/* <button style={{ ...css.btn, border: "none", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff" }}><Icon name="send" size={12} color="#fff" /> Send for Approval</button> */}
           </div>
         </div>
         {improving && (
@@ -204,6 +229,13 @@ export const ContentStudio = () => {
             <div style={{ height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 2 }}>
               <div style={{ height: "100%", width: `${improveProgress}%`, background: "linear-gradient(90deg, #6366f1, #8b5cf6)", borderRadius: 2, transition: "width 0.4s" }} />
             </div>
+          </div>
+        )}
+        {publishToast && (
+          <div style={{ marginBottom: 14, padding: "10px 14px", borderRadius: 7, background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.2)", display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 16 }}>✅</span>
+            <span style={{ fontSize: 12, color: "#6ee7b7", fontWeight: 600, flex: 1 }}>{publishToast}</span>
+            <button onClick={() => setPublishToast("")} style={{ background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: 14 }}>✕</button>
           </div>
         )}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 260px", gap: 14 }}>
@@ -377,7 +409,7 @@ export const ContentStudio = () => {
             )}
             <div style={{ ...css.card, padding: 14 }}>
               <p style={{ fontSize: 10, fontWeight: 700, color: "#475569", textTransform: "uppercase", margin: "0 0 9px" }}>Actions</p>
-              {[{ l: "⚡ AI Improve Content", c: "#8b5cf6", fn: simulateImprove }, { l: "🚀 Send to Publishing", c: "#10b981", fn: () => navigate("/publishing") }, { l: "⏰ Add to Calendar", c: "#f59e0b", fn: () => navigate("/calendar") }].map((a) => (
+              {[{ l: "⚡ AI Improve Content", c: "#8b5cf6", fn: simulateImprove }, { l: "🚀 Publish Now", c: "#10b981", fn: handlePublish }, { l: "⏰ Add to Calendar", c: "#f59e0b", fn: handleScheduleToCalendar }].map((a) => (
                 <button key={a.l} onClick={a.fn} style={{ width: "100%", display: "block", padding: "7px 10px", borderRadius: 6, border: `1px solid ${a.c}20`, background: `${a.c}08`, color: a.c, fontSize: 11, fontWeight: 600, cursor: "pointer", marginBottom: 5, textAlign: "left" }}>{a.l}</button>
               ))}
             </div>
@@ -410,7 +442,7 @@ export const ContentStudio = () => {
           </div>
         )}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 18 }}>
-          {[{ label: "Total Briefs", value: "4", icon: "📄", color: "#818cf8" }, { label: "Avg EEAT Score", value: "7.8", icon: "🎯", color: "#10b981" }, { label: "Pending Approval", value: "1", icon: "⏳", color: "#f59e0b" }, { label: "Published", value: "1", icon: "✅", color: "#10b981" }].map((s, i) => <StatCard key={i} {...s} />)}
+          {[{ label: "Total Briefs", value: String(allBriefs.length), icon: "📄", color: "#818cf8" }, { label: "Avg EEAT Score", value: allBriefs.length > 0 ? (allBriefs.reduce((s, b) => s + b.eeat, 0) / allBriefs.length).toFixed(1) : "0", icon: "🎯", color: "#10b981" }, { label: "Pending Approval", value: String(allBriefs.filter(b => b.status === "pending_approval").length), icon: "⏳", color: "#f59e0b" }, { label: "Published", value: String(allBriefs.filter(b => b.status === "published").length), icon: "✅", color: "#10b981" }].map((s, i) => <StatCard key={i} {...s} />)}
         </div>
         <div style={{ ...css.card, overflow: "hidden" }}>
           <div style={{ padding: "12px 18px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -423,12 +455,13 @@ export const ContentStudio = () => {
           <div style={{ display: "grid", gridTemplateColumns: "2.5fr 1.2fr 0.7fr 0.6fr 0.7fr 0.7fr", padding: "7px 18px", fontSize: 10, fontWeight: 700, color: "#475569", textTransform: "uppercase", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
             <span>Title</span><span>Status</span><span>EEAT</span><span>Words</span><span>Cluster</span><span>Actions</span>
           </div>
-          {contentBriefs.map((brief, i) => {
+          {allBriefs.map((brief, i) => {
             const briefEeatColor = brief.eeat >= 8 ? "#10b981" : brief.eeat >= 7 ? "#f59e0b" : "#ef4444";
             return (
-              <div key={brief.id} style={{ display: "grid", gridTemplateColumns: "2.5fr 1.2fr 0.7fr 0.6fr 0.7fr 0.7fr", padding: "12px 18px", borderBottom: i < contentBriefs.length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none", alignItems: "center" }}
+              <div key={brief.id} style={{ display: "grid", gridTemplateColumns: "2.5fr 1.2fr 0.7fr 0.6fr 0.7fr 0.7fr", padding: "12px 18px", borderBottom: i < allBriefs.length - 1 ? "1px solid rgba(255,255,255,0.03)" : "none", alignItems: "center" }}
                 onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.015)")}
-                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+              >
                 <div>
                   <p style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", margin: "0 0 2px", cursor: "pointer" }} onClick={() => { setSelectedBrief(brief); setContentView("editor"); setEditorTab("article"); }}>{brief.title}</p>
                   <div style={{ display: "flex", gap: 6 }}>
