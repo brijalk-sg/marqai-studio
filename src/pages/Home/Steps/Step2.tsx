@@ -1,26 +1,43 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import api from '../../../lib/api'
+import type { Step1Data } from './Step1'
+
+const PROJECT_ID = '69a2cc5f8b20c2fbe4da5ce9'
 
 interface Step2Props {
   onNext: () => void
   onBack: () => void
+  step1Data: Step1Data | null
 }
 
-const MOCK_OUTLINE = {
-  title: 'The Ultimate Guide to SaaS Productivity Tools',
-  subheadings: [
-    'What Are SaaS Productivity Tools?',
-    'Key Benefits for Remote Teams',
-    'Top Features to Look For',
-    'Comparing Popular Solutions',
-    'Implementation Best Practices',
-    'Measuring ROI and Productivity Gains',
-  ],
-}
-
-export const Step2 = ({ onNext, onBack }: Step2Props) => {
+export const Step2 = ({ onNext, onBack, step1Data }: Step2Props) => {
   const [isEditing, setIsEditing] = useState(false)
-  const [title, setTitle] = useState(MOCK_OUTLINE.title)
-  const [subheadings, setSubheadings] = useState(MOCK_OUTLINE.subheadings)
+  const [title, setTitle] = useState('')
+  const [subheadings, setSubheadings] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const fetchOutline = async () => {
+      setIsLoading(true)
+      setError('')
+      try {
+        const { data } = await api.post('generate-blog-outline', {
+          projectId: PROJECT_ID,
+          industry: step1Data?.industry ?? '',
+          website: step1Data?.website ?? '',
+          keywords: step1Data?.keywords ?? [],
+        })
+        setTitle(data.title ?? '')
+        setSubheadings(data.headings ?? [])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Something went wrong')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchOutline()
+  }, [step1Data])
 
   const updateSubheading = (index: number, value: string) => {
     setSubheadings((prev) => prev.map((s, i) => (i === index ? value : s)))
@@ -32,6 +49,57 @@ export const Step2 = ({ onNext, onBack }: Step2Props) => {
 
   const addSubheading = () => {
     setSubheadings((prev) => [...prev, ''])
+  }
+
+  if (isLoading) {
+    return (
+      <div className="bg-surface-900 border border-surface-700 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[400px]">
+        <svg className="w-8 h-8 text-primary-500 animate-spin mb-4" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+        <p className="text-surface-400 text-sm">Generating content outline...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="bg-surface-900 border border-surface-700 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[400px]">
+        <p className="text-red-400 text-sm mb-4">{error}</p>
+        <div className="flex gap-3">
+          <button
+            onClick={onBack}
+            className="rounded-lg border border-surface-700 px-6 py-3 text-surface-300 hover:bg-surface-800 font-semibold transition-colors cursor-pointer"
+          >
+            Back
+          </button>
+          <button
+            onClick={() => {
+              setError('')
+              setIsLoading(true)
+              api.post('generate-blog-outline', {
+                projectId: PROJECT_ID,
+                industry: step1Data?.industry ?? '',
+                website: step1Data?.website ?? '',
+                keywords: step1Data?.keywords ?? [],
+              })
+                .then(({ data }) => {
+                  setTitle(data.title ?? '')
+                  setSubheadings(data.headings ?? [])
+                })
+                .catch((err) => {
+                  setError(err instanceof Error ? err.message : 'Something went wrong')
+                })
+                .finally(() => setIsLoading(false))
+            }}
+            className="rounded-lg bg-primary-500 hover:bg-primary-600 px-6 py-3 text-white font-semibold transition-colors cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (

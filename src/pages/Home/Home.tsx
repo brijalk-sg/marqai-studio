@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { TOTAL_STEPS } from './Constants'
-import { Step1 } from './Steps/Step1'
+import { Step1, type Step1Data } from './Steps/Step1'
 import { Step2 } from './Steps/Step2'
 import { Step3 } from './Steps/Step3'
 import { Step4 } from './Steps/Step4'
@@ -9,11 +9,13 @@ const STEP_LABELS = ['Brand', 'Details', 'Content', 'Review']
 
 export const Home = () => {
   const [currentStep, setCurrentStep] = useState(1)
+  const [step1Data, setStep1Data] = useState<Step1Data | null>(null)
 
   const goNext = () => setCurrentStep((s) => Math.min(s + 1, TOTAL_STEPS))
   const goBack = () => setCurrentStep((s) => Math.max(s - 1, 1))
 
-  const handleStep1Next = () => {
+  const handleStep1Next = (data: Step1Data) => {
+    setStep1Data(data)
     goNext()
   }
 
@@ -98,9 +100,9 @@ export const Home = () => {
       </div>
       {/* Step content */}
       <main className="flex-1 flex items-center justify-center px-6 py-10">
-        <div className={`w-full ${currentStep === 4 ? 'max-w-7xl' : 'max-w-5xl'}`}>
+        <div className={`w-full ${currentStep === 4 ? 'w-full mx-auto' : 'max-w-5xl'}`}>
           {currentStep === 1 && <Step1 onNext={handleStep1Next} />}
-          {currentStep === 2 && <Step2 onNext={goNext} onBack={goBack} />}
+          {currentStep === 2 && <Step2 onNext={goNext} onBack={goBack} step1Data={step1Data} />}
           {currentStep === 3 && <Step3 onNext={goNext} onBack={goBack} />}
           {currentStep === 4 && (
             <Step4 onSubmit={handleFinish} onBack={goBack} />

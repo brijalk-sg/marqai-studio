@@ -2,8 +2,14 @@ import { useState } from 'react'
 import api from '../../../lib/api'
 import { INDUSTRY_GROUPS } from '../Constants'
 
+export interface Step1Data {
+  industry: string
+  website: string
+  keywords: string[]
+}
+
 interface Step1Props {
-  onNext: () => void
+  onNext: (data: Step1Data) => void
 }
 
 export const Step1 = ({ onNext }: Step1Props) => {
@@ -35,7 +41,6 @@ export const Step1 = ({ onNext }: Step1Props) => {
         website: niche.trim(),
         industry,
       });
-      console.log(data)
       setKeywords(data.keywords ?? [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -230,7 +235,7 @@ export const Step1 = ({ onNext }: Step1Props) => {
 
             {/* Continue */}
             <button
-              onClick={onNext}
+              onClick={() => onNext({ industry, website: niche.trim(), keywords })}
               disabled={keywords.length === 0}
               className="mt-6 w-full rounded-lg bg-primary-500 hover:bg-primary-600 disabled:opacity-40 disabled:cursor-not-allowed px-6 py-3 text-white font-semibold transition-colors cursor-pointer"
             >
