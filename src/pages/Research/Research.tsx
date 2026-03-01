@@ -41,10 +41,10 @@ export const Research = () => {
     content_types: string[];
     region: string;
   }>({
-    niche: "healthcare staffing",
-    goals: "Goal is to increase organic traffic and generate more leads for our healthcare staffing services by targeting high-opportunity content topics that resonate with our audience.",
-    target_audience: "Healthcare recruiters and HR professionals",
-    competitors: ['CTM'],
+    niche: "",
+    goals: "",
+    target_audience: "",
+    competitors: [''],
     content_types: [],
     region: "US",
   });
