@@ -7,11 +7,14 @@ import { VisualAssets } from './pages/VisualAssets/VisualAssets'
 import { Calendar } from './pages/Calendar/Calendar'
 import { Publishing } from './pages/Publishing/Publishing'
 import { Approvals } from './pages/Approvals/Approvals'
+import { Landing } from './pages/Landing/Landing'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Landing />} />
+
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/research" element={<Research />} />
