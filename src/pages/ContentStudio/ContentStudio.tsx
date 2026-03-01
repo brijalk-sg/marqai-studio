@@ -17,8 +17,19 @@ export const ContentStudio = () => {
   const [briefError, setBriefError] = useState("")
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [loadingStage, setLoadingStage] = useState("")
-  const [allBriefs, setAllBriefs] = useState<ContentBrief[]>(contentBriefs)
+  const [allBriefs, setAllBriefs] = useState<ContentBrief[]>(() => {
+    try {
+      const stored = localStorage.getItem("marqai_briefs")
+      if (stored) return JSON.parse(stored) as ContentBrief[]
+    } catch { /* ignore */ }
+    return contentBriefs
+  })
   const [publishToast, setPublishToast] = useState("")
+  const [publishing, setPublishing] = useState(false)
+
+  useEffect(() => {
+    localStorage.setItem("marqai_briefs", JSON.stringify(allBriefs))
+  }, [allBriefs])
 
   useEffect(() => {
     const state = location.state as { topic?: unknown; industry?: string; contentGoals?: string; targetAudience?: string; contentPlatform?: string; region?: string } | null
@@ -58,7 +69,18 @@ export const ContentStudio = () => {
       })
 
       const data = res.data
-      const briefData = data.brief || data
+      const briefData = data?.brief || data
+
+      // If API returned empty/no data, fall back to mock
+      if (!briefData || !briefData.title) {
+        const mockBrief = contentBriefs[0]
+        setSelectedBrief(mockBrief)
+        setAllBriefs(prev => [mockBrief, ...prev])
+        setLoadingProgress(100)
+        setLoadingStage("Brief generated (offline mode)")
+        setTimeout(() => setBriefLoading(false), 500)
+        return
+      }
 
       const brief: ContentBrief = {
         id: briefData.id || `cb-${Date.now()}`,
@@ -80,7 +102,10 @@ export const ContentStudio = () => {
           title: briefData.meta?.title || "",
           description: briefData.meta?.description || "",
           og_title: briefData.meta?.og_title || "",
-          faq: briefData.meta?.faq || [],
+          faq: (briefData.meta?.faq || []).map((f: Record<string, string>) => ({
+            q: f.q || f.question || "",
+            a: f.a || f.answer || "",
+          })),
         },
       }
 
@@ -90,52 +115,8 @@ export const ContentStudio = () => {
       setLoadingStage("Brief generated!")
       setTimeout(() => setBriefLoading(false), 500)
     } catch {
-      // API failed — fall back to mock response
-      // state.topic is a Topic object from Research page
-      const topicObj = state.topic as { title?: string; primary_keyword?: string } | undefined
-      const topicTitle = topicObj?.title || "Untitled Brief"
-      const topicKeyword = topicObj?.primary_keyword || topicTitle.split(" ").slice(0, 4).join(" ").toLowerCase()
-
-      const mockBrief: ContentBrief = {
-        id: `cb-${Date.now()}`,
-        title: topicTitle,
-        keyword: topicKeyword,
-        status: "draft",
-        eeat: 7.5,
-        words: 1850,
-        author: "MarqAI",
-        created: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-        cluster: state.industry || "General",
-        outline: {
-          sections: [
-            { heading: "Introduction & Market Overview", type: "h2" },
-            { heading: "Key Challenges & Pain Points", type: "h2" },
-            { heading: "Strategic Solutions & Best Practices", type: "h2" },
-            { heading: "Implementation Roadmap", type: "h2" },
-            { heading: "Measuring Success & KPIs", type: "h2" },
-            { heading: "FAQ", type: "h2" },
-          ],
-        },
-        article: {
-          excerpt: `A comprehensive guide to ${topicTitle} for ${state.targetAudience || "professionals"} in the ${state.industry || "industry"} space. This brief covers key strategies, implementation steps, and measurable outcomes.`,
-          content: `## Introduction & Market Overview\n\nThe landscape of ${topicTitle} is evolving rapidly. Organizations in the ${state.industry || "industry"} sector must adapt to stay competitive and deliver value to their ${state.targetAudience || "audience"}.\n\n## Key Challenges & Pain Points\n\nCommon challenges include keeping pace with market changes, aligning strategy with business objectives, and measuring the impact of content initiatives. Understanding these pain points is the first step toward building an effective content strategy.\n\n## Strategic Solutions & Best Practices\n\nLeading organizations are adopting data-driven approaches to content creation. By leveraging AI-powered insights and audience analytics, teams can create content that resonates with their target audience and drives measurable results.\n\n## Implementation Roadmap\n\nA phased approach ensures smooth adoption: Phase 1 — Audit existing content and identify gaps. Phase 2 — Develop a content calendar aligned with business goals. Phase 3 — Execute, measure, and iterate based on performance data.`,
-        },
-        eeatBreakdown: {
-          experience: { score: 7.0, label: "Experience", feedback: "Add first-person insights or customer quotes to strengthen practical credibility." },
-          expertise: { score: 7.8, label: "Expertise", feedback: "Good technical depth. Consider citing industry reports or peer-reviewed sources." },
-          authority: { score: 7.2, label: "Authoritativeness", feedback: "Reference authoritative industry bodies and include original data points." },
-          trust: { score: 8.0, label: "Trustworthiness", feedback: "Content is balanced and well-structured. Add methodology section for transparency." },
-        },
-        meta: {
-          title: `${topicTitle} — Complete Guide [${new Date().getFullYear()}]`,
-          description: `Discover actionable strategies for ${topicTitle}. Includes implementation roadmap, best practices, and measurable KPIs for ${state.targetAudience || "professionals"}.`,
-          og_title: `${topicTitle} — Expert Guide`,
-          faq: [
-            { q: `What are the key benefits of ${topicTitle}?`, a: "The primary benefits include improved efficiency, better audience engagement, and measurable ROI through data-driven content strategies." },
-            { q: "How long does implementation typically take?", a: "Most organizations see initial results within 1-3 months, with full implementation completed in 3-6 months depending on scope." },
-          ],
-        },
-      }
+      // API failed — fall back to mock data
+      const mockBrief = contentBriefs[0]
 
       setSelectedBrief(mockBrief)
       setAllBriefs(prev => [mockBrief, ...prev])
@@ -150,20 +131,35 @@ export const ContentStudio = () => {
     [15, 35, 60, 85, 100].forEach((p, i) => { setTimeout(() => { setImproveProgress(p); if (p === 100) setTimeout(() => setImproving(false), 500); }, (i + 1) * 700); });
   };
 
-  const handlePublish = () => {
-    if (!selectedBrief) return
-    const published: ContentBrief = {
-      ...selectedBrief,
-      status: "published",
-      publishedOn: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+  const handlePublish = async () => {
+    if (!selectedBrief || publishing) return
+    setPublishing(true)
+
+    try {
+      await fetch("https://n8n.solz.me/webhook/public-to-medium", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: selectedBrief.article.content }),
+      })
+
+      const published: ContentBrief = {
+        ...selectedBrief,
+        status: "published",
+        publishedOn: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      }
+      setSelectedBrief(published)
+      setAllBriefs(prev => {
+        const exists = prev.some(b => b.id === published.id)
+        return exists ? prev.map(b => b.id === published.id ? published : b) : [published, ...prev]
+      })
+      setPublishToast("Content published to Medium successfully!")
+      setTimeout(() => setPublishToast(""), 3000)
+    } catch {
+      setPublishToast("Failed to publish — please try again.")
+      setTimeout(() => setPublishToast(""), 3000)
+    } finally {
+      setPublishing(false)
     }
-    setSelectedBrief(published)
-    setAllBriefs(prev => {
-      const exists = prev.some(b => b.id === published.id)
-      return exists ? prev.map(b => b.id === published.id ? published : b) : [published, ...prev]
-    })
-    setPublishToast("Content published successfully!")
-    setTimeout(() => setPublishToast(""), 3000)
   }
 
   const handleScheduleToCalendar = () => {
@@ -255,10 +251,18 @@ export const ContentStudio = () => {
                 {brief.article.content ? (
                   <>
                     {brief.article.excerpt && <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "14px 0" }} />}
-                    {brief.article.content.split("\n\n").map((para, i) => {
-                      if (para.startsWith("## ")) return <h2 key={i} style={{ fontSize: 15, fontWeight: 700, color: "#e2e8f0", margin: "16px 0 8px" }}>{para.replace("## ", "")}</h2>;
-                      return <p key={i} style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.8, margin: "0 0 12px" }}>{para}</p>;
-                    })}
+                    {/<[a-z][\s\S]*>/i.test(brief.article.content) ? (
+                      <div
+                        dangerouslySetInnerHTML={{ __html: brief.article.content }}
+                        style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.8 }}
+                        className="brief-article-html"
+                      />
+                    ) : (
+                      brief.article.content.split("\n\n").map((para, i) => {
+                        if (para.startsWith("## ")) return <h2 key={i} style={{ fontSize: 15, fontWeight: 700, color: "#e2e8f0", margin: "16px 0 8px" }}>{para.replace("## ", "")}</h2>;
+                        return <p key={i} style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.8, margin: "0 0 12px" }}>{para}</p>;
+                      })
+                    )}
                   </>
                 ) : null}
                 {!brief.article.excerpt && !brief.article.content && (
@@ -409,8 +413,8 @@ export const ContentStudio = () => {
             )}
             <div style={{ ...css.card, padding: 14 }}>
               <p style={{ fontSize: 10, fontWeight: 700, color: "#475569", textTransform: "uppercase", margin: "0 0 9px" }}>Actions</p>
-              {[{ l: "⚡ AI Improve Content", c: "#8b5cf6", fn: simulateImprove }, { l: "🚀 Publish Now", c: "#10b981", fn: handlePublish }, { l: "⏰ Add to Calendar", c: "#f59e0b", fn: handleScheduleToCalendar }].map((a) => (
-                <button key={a.l} onClick={a.fn} style={{ width: "100%", display: "block", padding: "7px 10px", borderRadius: 6, border: `1px solid ${a.c}20`, background: `${a.c}08`, color: a.c, fontSize: 11, fontWeight: 600, cursor: "pointer", marginBottom: 5, textAlign: "left" }}>{a.l}</button>
+              {[{ l: "⚡ AI Improve Content", c: "#8b5cf6", fn: simulateImprove, disabled: false }, { l: publishing ? "Publishing..." : "🚀 Publish Now", c: "#10b981", fn: handlePublish, disabled: publishing }, { l: "⏰ Add to Calendar", c: "#f59e0b", fn: handleScheduleToCalendar, disabled: false }].map((a) => (
+                <button key={a.l} onClick={a.fn} disabled={a.disabled} style={{ width: "100%", display: "block", padding: "7px 10px", borderRadius: 6, border: `1px solid ${a.c}20`, background: `${a.c}08`, color: a.c, fontSize: 11, fontWeight: 600, cursor: a.disabled ? "not-allowed" : "pointer", opacity: a.disabled ? 0.6 : 1, marginBottom: 5, textAlign: "left" }}>{a.l}</button>
               ))}
             </div>
           </div>
@@ -421,7 +425,7 @@ export const ContentStudio = () => {
 
   const renderListView = () => {
     const statusColors: Record<string, string> = { draft: "#6366f1", pending_approval: "#f59e0b", published: "#10b981", scheduled: "#3b82f6" };
-    const statusLabels: Record<string, string> = { draft: "Draft", pending_approval: "Pending Approval", published: "Published", scheduled: "Scheduled" };
+    const statusLabels: Record<string, string> = { draft: "Draft", published: "Published", scheduled: "Scheduled" };
 
     return (
       <div>
@@ -442,7 +446,7 @@ export const ContentStudio = () => {
           </div>
         )}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 18 }}>
-          {[{ label: "Total Briefs", value: String(allBriefs.length), icon: "📄", color: "#818cf8" }, { label: "Avg EEAT Score", value: allBriefs.length > 0 ? (allBriefs.reduce((s, b) => s + b.eeat, 0) / allBriefs.length).toFixed(1) : "0", icon: "🎯", color: "#10b981" }, { label: "Pending Approval", value: String(allBriefs.filter(b => b.status === "pending_approval").length), icon: "⏳", color: "#f59e0b" }, { label: "Published", value: String(allBriefs.filter(b => b.status === "published").length), icon: "✅", color: "#10b981" }].map((s, i) => <StatCard key={i} {...s} />)}
+          {[{ label: "Total Briefs", value: String(allBriefs.length), icon: "📄", color: "#818cf8" }, { label: "Avg EEAT Score", value: allBriefs.length > 0 ? (allBriefs.reduce((s, b) => s + b.eeat, 0) / allBriefs.length).toFixed(1) : "0", icon: "🎯", color: "#10b981" }, { label: "Pending Approval", value: String(allBriefs.filter(b => b.status === "published").length), icon: "⏳", color: "#f59e0b" }, { label: "Published", value: String(allBriefs.filter(b => b.status === "published").length), icon: "✅", color: "#10b981" }].map((s, i) => <StatCard key={i} {...s} />)}
         </div>
         <div style={{ ...css.card, overflow: "hidden" }}>
           <div style={{ padding: "12px 18px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>

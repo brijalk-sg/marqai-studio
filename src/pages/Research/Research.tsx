@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Icon, Badge } from '../../components/ui'
 import { css } from '../../lib/styles'
-import { intentColor, stageColor, diffColor, diffNum } from '../../data/mockData'
+import { intentColor, stageColor, diffColor, diffNum, topics as mockTopicsData, strategy as mockStrategyData, researchSummary as mockSummaryData } from '../../data/mockData'
 import type { Topic } from '../../data/mockData'
 
 interface Strategy {
@@ -108,10 +108,11 @@ export const Research = () => {
 
       const data = res.data
 
-      // Populate state from API response if available
-      if (data.topics && Array.isArray(data.topics)) setTopics(data.topics)
-      if (data.strategy) setStrategy(data.strategy)
-      if (data.researchSummary) setResearchSummary(data.researchSummary)
+      // Populate state from API response, fall back to mock if empty
+      const hasTopics = data?.topics && Array.isArray(data.topics) && data.topics.length > 0
+      setTopics(hasTopics ? data.topics : mockTopicsData)
+      setStrategy(data?.strategy || mockStrategyData)
+      setResearchSummary(data?.researchSummary || mockSummaryData)
 
       setLoadingProgress(90)
       setLoadingStage("Building strategic recommendations...")
@@ -121,198 +122,10 @@ export const Research = () => {
         setTimeout(() => setResearchPhase("results"), 500)
       }, 600)
     } catch {
-      // API failed — fall back to mock response based on form inputs
-      const niche = formData.niche || "your industry"
-      const audience = formData.target_audience || "professionals"
-
-      const mockTopics: Topic[] = [
-        {
-          id: 1,
-          title: `${niche} ROI Guide: Real Numbers That Drive Decisions`,
-          primary_keyword: `${niche} ROI`,
-          intent: "commercial",
-          stage: "consideration",
-          difficulty: "medium",
-          volume: "800-1,200",
-          cluster: "ROI & Business Case",
-          format: "case study",
-          why: `Decision-makers in ${niche} search this when evaluating solutions. Competitors have generic ROI pages but none with mid-market data — clear gap.`,
-          angle: `Real anonymized data from 3 mid-size ${niche} implementations`,
-          serp: ["featured_snippet", "people_also_ask"],
-          keywords: {
-            primary: { kw: `${niche} ROI`, vol: "800-1,200", diff: 42, potential: "high" },
-            secondary: [
-              { kw: `${niche} cost savings`, vol: "400-700", diff: 35, rel: "high" },
-              { kw: `${niche} return on investment`, vol: "200-400", diff: 28, rel: "high" },
-            ],
-            lsi: ["cost reduction", "efficiency gains", "implementation timeline"],
-            entity: [niche, "market analysis", "industry benchmarks"],
-            questions: [`How much does ${niche} save businesses?`, `What is the ROI of investing in ${niche}?`],
-          },
-          competitor: {
-            level: "medium",
-            dominant: "whitepapers & case studies",
-            avgLen: "2,500 words",
-            top: [
-              {
-                domain: "industryleader.com",
-                approach: `Enterprise-focused case studies targeting large ${niche} organizations`,
-                strengths: ["Strong brand authority", "Real data points"],
-                weaknesses: ["No mid-market focus", "Gated content"],
-                quality: "excellent",
-              },
-            ],
-            gaps: [
-              { gap: `No mid-market ${niche} ROI data in top 20 results`, impact: "high", action: `Create the definitive mid-market ${niche} ROI guide with real numbers` },
-            ],
-            strategy: { angle: `Ungated, data-rich ROI analysis for ${audience}`, timeline: "1-3 months", confidence: 8 },
-          },
-        },
-        {
-          id: 2,
-          title: `The Complete ${niche} Guide for ${audience} in ${new Date().getFullYear()}`,
-          primary_keyword: `${niche} guide ${new Date().getFullYear()}`,
-          intent: "informational",
-          stage: "awareness",
-          difficulty: "low",
-          volume: "1,500-2,500",
-          cluster: "Educational Guides",
-          format: "ultimate guide",
-          why: `High search volume with low competition. Nobody has a comprehensive, up-to-date guide specifically for ${audience}.`,
-          angle: `Practical, actionable guide with real-world examples tailored for ${audience}`,
-          serp: ["featured_snippet", "people_also_ask"],
-          keywords: {
-            primary: { kw: `${niche} guide`, vol: "1,500-2,500", diff: 28, potential: "high" },
-            secondary: [
-              { kw: `${niche} best practices`, vol: "1,000-1,800", diff: 32, rel: "high" },
-              { kw: `${niche} strategies`, vol: "600-1,000", diff: 25, rel: "high" },
-            ],
-            lsi: ["best practices", "implementation steps", "common mistakes"],
-            entity: [niche, "industry standards", "regulatory compliance"],
-            questions: [`What are the best ${niche} strategies?`, `How do I get started with ${niche}?`],
-          },
-          competitor: {
-            level: "low",
-            dominant: "generic blog posts",
-            avgLen: "1,800 words",
-            top: [
-              {
-                domain: "genericblog.com",
-                approach: "Surface-level overview content",
-                strengths: ["Good SEO basics"],
-                weaknesses: ["No depth", "Outdated information"],
-                quality: "good",
-              },
-            ],
-            gaps: [
-              { gap: `No comprehensive ${new Date().getFullYear()} guide exists for ${audience}`, impact: "high", action: `Own the definitive ${niche} guide for this year` },
-            ],
-            strategy: { angle: `First comprehensive guide bridging ${niche} with practical ${audience} needs`, timeline: "1-3 months", confidence: 9 },
-          },
-        },
-        {
-          id: 3,
-          title: `Top ${niche} Tools Compared: An Unbiased Review`,
-          primary_keyword: `${niche} tools comparison`,
-          intent: "commercial",
-          stage: "decision",
-          difficulty: "medium",
-          volume: "600-900",
-          cluster: "Buyer Guides",
-          format: "comparison",
-          why: `High-intent commercial query. No comprehensive unbiased comparison exists for ${audience}.`,
-          angle: `Neutral third-party comparison with scoring matrix across 8 criteria`,
-          serp: ["featured_snippet"],
-          keywords: {
-            primary: { kw: `${niche} tools comparison`, vol: "600-900", diff: 45, potential: "high" },
-            secondary: [
-              { kw: `best ${niche} tools`, vol: "800-1,200", diff: 40, rel: "high" },
-              { kw: `${niche} software review`, vol: "300-500", diff: 30, rel: "high" },
-            ],
-            lsi: ["feature comparison", "pricing analysis", "user reviews"],
-            entity: [niche, "software evaluation", "vendor analysis"],
-            questions: [`Which ${niche} tool is best?`, `How do ${niche} solutions compare?`],
-          },
-          competitor: {
-            level: "medium",
-            dominant: "vendor landing pages",
-            avgLen: "1,500 words",
-            top: [
-              {
-                domain: "reviewsite.com",
-                approach: "User review aggregation",
-                strengths: ["Social proof"],
-                weaknesses: ["No technical depth", "Pay-to-play rankings"],
-                quality: "good",
-              },
-            ],
-            gaps: [
-              { gap: `No technical, criteria-based ${niche} comparison exists`, impact: "high", action: "Create definitive technical comparison with scoring matrix" },
-            ],
-            strategy: { angle: `Independent criteria-based evaluation ${audience} actually trust`, timeline: "3-6 months", confidence: 7 },
-          },
-        },
-        {
-          id: 4,
-          title: `${niche} Trends & Predictions: What ${audience} Need to Know`,
-          primary_keyword: `${niche} trends ${new Date().getFullYear()}`,
-          intent: "informational",
-          stage: "awareness",
-          difficulty: "low",
-          volume: "2,000-3,500",
-          cluster: "Thought Leadership",
-          format: "ultimate guide",
-          why: `Trending topic with massive search demand. First-mover advantage — most content is still about last year.`,
-          angle: `Data-backed predictions with actionable insights for ${audience}`,
-          serp: ["featured_snippet", "people_also_ask"],
-          keywords: {
-            primary: { kw: `${niche} trends`, vol: "2,000-3,500", diff: 32, potential: "high" },
-            secondary: [
-              { kw: `${niche} predictions`, vol: "800-1,500", diff: 18, rel: "high" },
-              { kw: `future of ${niche}`, vol: "600-1,000", diff: 25, rel: "high" },
-            ],
-            lsi: ["emerging trends", "industry forecast", "market analysis"],
-            entity: [niche, "market research", "industry analysts"],
-            questions: [`What are the biggest ${niche} trends?`, `How will ${niche} evolve this year?`],
-          },
-          competitor: {
-            level: "low",
-            dominant: "news articles",
-            avgLen: "1,200 words",
-            top: [
-              {
-                domain: "industrynews.com",
-                approach: "News-style trend reporting",
-                strengths: ["Timely content"],
-                weaknesses: ["No actionable insights", "Surface-level analysis"],
-                quality: "basic",
-              },
-            ],
-            gaps: [
-              { gap: `No actionable ${niche} trends guide for ${audience} exists`, impact: "high", action: "Create the first comprehensive, data-backed trends guide" },
-            ],
-            strategy: { angle: `First-mover data-backed trends guide with actionable takeaways for ${audience}`, timeline: "1-3 months", confidence: 9 },
-          },
-        },
-      ]
-
-      const mockStrategy: Strategy = {
-        quickWins: [2, 4],
-        strongest: [2, 4, 1],
-        longTerm: [3],
-        order: [4, 2, 1, 3],
-        reasoning: `Start with Trends (#4) — low competition, high volume, first-mover advantage. Then the Complete Guide (#2) for educational authority. ROI Guide (#1) for conversion-focused content. Tools Comparison (#3) captures bottom-funnel once brand is established.`,
-      }
-
-      const mockSummary: ResearchSummary = {
-        niche: `The ${niche} space is growing rapidly. Content landscape is dominated by enterprise vendors — mid-market and ${audience} are severely underserved.`,
-        opportunity: `Massive gap in practical, actionable content for ${audience}. No one owns the '${niche} made accessible' narrative.`,
-        direction: `Three pillars: 1) ROI & Business Case content, 2) Educational Guides & Best Practices, 3) Tool Comparisons & Buyer Guides`,
-      }
-
-      setTopics(mockTopics)
-      setStrategy(mockStrategy)
-      setResearchSummary(mockSummary)
+      // API failed — fall back to mock data
+      setTopics(mockTopicsData)
+      setStrategy(mockStrategyData)
+      setResearchSummary(mockSummaryData)
 
       setLoadingProgress(90)
       setLoadingStage("Building strategic recommendations...")

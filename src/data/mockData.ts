@@ -97,34 +97,256 @@ export interface ContentBrief {
 
 export const contentBriefs: ContentBrief[] = [
   {
-    id: 'cb-001', title: 'AI Fraud Detection ROI: Real Numbers from Mid-Size Banks', keyword: 'AI fraud detection ROI', status: 'draft', eeat: 7.2, words: 1680, author: 'Jordan Kim', created: 'Feb 26, 2026', cluster: 'ROI & Business Case',
-    outline: { sections: [{ heading: 'The True Cost of Fraud for Mid-Size Banks', type: 'h2' }, { heading: 'How AI Changes the ROI Equation', type: 'h2' }, { heading: 'Real Implementation Numbers: 3 Case Studies', type: 'h2' }, { heading: 'Building Your ROI Business Case', type: 'h2' }, { heading: 'FAQ: AI Fraud Detection ROI', type: 'h2' }] },
-    article: { excerpt: "Mid-size banks face a paradox: fraud losses are rising while budgets for prevention remain flat. The answer for many has been AI-powered fraud detection — but what does the ROI actually look like?", content: "## The True Cost of Fraud for Mid-Size Banks\n\nFraud costs the average mid-size bank between $2.4M and $8.7M annually when you factor in direct losses, investigation costs, customer churn, and regulatory compliance overhead.\n\n## How AI Changes the ROI Equation\n\nTraditional rule-based fraud systems require constant manual tuning and average a 30–40% false positive rate. AI models learn from transaction patterns in real time, reducing false positives to under 8% while catching 94% of fraudulent transactions." },
-    eeatBreakdown: { experience: { score: 6.5, label: 'Experience', feedback: 'Add first-person implementation insights or customer quotes. Anonymized case study data would boost this score.' }, expertise: { score: 7.8, label: 'Expertise', feedback: 'Strong technical depth on AI mechanisms. Consider adding author credentials or citing peer-reviewed studies.' }, authority: { score: 7.0, label: 'Authoritativeness', feedback: 'Good use of industry entities. Add backlink-worthy stats and reference regulatory bodies directly.' }, trust: { score: 7.4, label: 'Trustworthiness', feedback: 'Content is balanced. Add a methodology section for the case studies to increase transparency.' } },
-    meta: { title: 'AI Fraud Detection ROI: Real Data from Mid-Size Banks [2026]', description: 'Discover real ROI numbers from 3 mid-size bank AI fraud detection implementations. Includes cost breakdown, timelines, and a CFO-ready business case template.', og_title: 'AI Fraud Detection ROI Calculator & Case Studies', faq: [{ q: 'How long to see ROI from AI fraud detection?', a: 'Most mid-size banks see measurable ROI within 6–9 months, with full payback in 12–18 months.' }] },
+    id: "cb-001",
+    title: "AI Fraud Detection ROI: Real Numbers from Mid-Size Banks",
+    keyword: "AI fraud detection ROI",
+    status: "draft",
+    eeat: 7.2,
+    words: 1680,
+    author: "Jordan Kim",
+    created: "Feb 26, 2026",
+    cluster: "ROI & Business Case",
+    outline: {
+      sections: [
+        { heading: "The True Cost of Fraud for Mid-Size Banks", type: "h2" },
+        { heading: "How AI Changes the ROI Equation", type: "h2" },
+        { heading: "Real Implementation Numbers: 3 Case Studies", type: "h2" },
+        { heading: "Building Your ROI Business Case", type: "h2" },
+        { heading: "FAQ: AI Fraud Detection ROI", type: "h2" },
+      ],
+    },
+    article: {
+      excerpt:
+        "Mid-size banks face a paradox: fraud losses are rising while budgets for prevention remain flat. The answer for many has been AI-powered fraud detection — but what does the ROI actually look like?",
+      content:
+        "## The True Cost of Fraud for Mid-Size Banks\n\nFraud costs the average mid-size bank between $2.4M and $8.7M annually when you factor in direct losses, investigation costs, customer churn, and regulatory compliance overhead.\n\n## How AI Changes the ROI Equation\n\nTraditional rule-based fraud systems require constant manual tuning and average a 30–40% false positive rate. AI models learn from transaction patterns in real time, reducing false positives to under 8% while catching 94% of fraudulent transactions.",
+    },
+    eeatBreakdown: {
+      experience: {
+        score: 6.5,
+        label: "Experience",
+        feedback:
+          "Add first-person implementation insights or customer quotes. Anonymized case study data would boost this score.",
+      },
+      expertise: {
+        score: 7.8,
+        label: "Expertise",
+        feedback:
+          "Strong technical depth on AI mechanisms. Consider adding author credentials or citing peer-reviewed studies.",
+      },
+      authority: {
+        score: 7.0,
+        label: "Authoritativeness",
+        feedback:
+          "Good use of industry entities. Add backlink-worthy stats and reference regulatory bodies directly.",
+      },
+      trust: {
+        score: 7.4,
+        label: "Trustworthiness",
+        feedback:
+          "Content is balanced. Add a methodology section for the case studies to increase transparency.",
+      },
+    },
+    meta: {
+      title: "AI Fraud Detection ROI: Real Data from Mid-Size Banks [2026]",
+      description:
+        "Discover real ROI numbers from 3 mid-size bank AI fraud detection implementations. Includes cost breakdown, timelines, and a CFO-ready business case template.",
+      og_title: "AI Fraud Detection ROI Calculator & Case Studies",
+      faq: [
+        {
+          q: "How long to see ROI from AI fraud detection?",
+          a: "Most mid-size banks see measurable ROI within 6–9 months, with full payback in 12–18 months.",
+        },
+      ],
+    },
   },
   {
-    id: 'cb-002', title: 'PCI DSS 4.0 and AI: What Your Fraud Team Needs to Know', keyword: 'PCI DSS 4.0 AI fraud detection', status: 'pending_approval', eeat: 8.3, words: 2140, author: 'Jordan Kim', created: 'Feb 24, 2026', cluster: 'Compliance & Regulatory',
-    outline: { sections: [{ heading: 'PCI DSS 4.0: What Changed and Why It Matters', type: 'h2' }, { heading: 'Mapping AI Capabilities to PCI DSS 4.0 Requirements', type: 'h2' }, { heading: 'Implementation Checklist for Compliance Teams', type: 'h2' }, { heading: 'Common Compliance Pitfalls', type: 'h2' }, { heading: 'Building a Compliant AI Fraud Stack', type: 'h2' }] },
-    article: { excerpt: "PCI DSS 4.0 enforcement began March 31, 2025. Most compliance guides treat it as a checkbox exercise — this one shows exactly how AI fraud detection maps to the new requirements.", content: "## PCI DSS 4.0: What Changed and Why It Matters\n\nThe Payment Card Industry Data Security Standard version 4.0 introduces 64 new requirements compared to v3.2.1. For fraud teams, the most impactful changes relate to continuous monitoring (Requirement 10.7), targeted risk analysis (Requirement 12.3), and automated threat detection." },
-    eeatBreakdown: { experience: { score: 8.1, label: 'Experience', feedback: 'Excellent use of specific PCI DSS requirement numbers. Real-world compliance scenarios add strong practical credibility.' }, expertise: { score: 8.5, label: 'Expertise', feedback: 'Deep regulatory knowledge is evident. Consider adding QSA perspective or quote.' }, authority: { score: 8.2, label: 'Authoritativeness', feedback: 'References PCI SSC, Visa, and Mastercard directly. Link to official PCI SSC documentation.' }, trust: { score: 8.4, label: 'Trustworthiness', feedback: 'Well-balanced coverage of requirements. Includes important disclaimer about consulting QSAs.' } },
-    meta: { title: 'PCI DSS 4.0 & AI Fraud Detection: Complete Compliance Guide [2026]', description: 'Learn how AI fraud detection maps to PCI DSS 4.0 requirements. Practical checklist, implementation timeline, and compliance pitfalls to avoid.', og_title: 'PCI DSS 4.0 AI Compliance Guide for Fraud Teams', faq: [{ q: 'Does PCI DSS 4.0 require AI for fraud detection?', a: 'PCI DSS 4.0 does not mandate AI specifically, but its continuous monitoring requirements are most efficiently met with AI-powered systems.' }] },
+    id: "cb-002",
+    title: "PCI DSS 4.0 and AI: What Your Fraud Team Needs to Know",
+    keyword: "PCI DSS 4.0 AI fraud detection",
+    status: "draft",
+    eeat: 8.3,
+    words: 2140,
+    author: "Jordan Kim",
+    created: "Feb 24, 2026",
+    cluster: "Compliance & Regulatory",
+    outline: {
+      sections: [
+        { heading: "PCI DSS 4.0: What Changed and Why It Matters", type: "h2" },
+        {
+          heading: "Mapping AI Capabilities to PCI DSS 4.0 Requirements",
+          type: "h2",
+        },
+        {
+          heading: "Implementation Checklist for Compliance Teams",
+          type: "h2",
+        },
+        { heading: "Common Compliance Pitfalls", type: "h2" },
+        { heading: "Building a Compliant AI Fraud Stack", type: "h2" },
+      ],
+    },
+    article: {
+      excerpt:
+        "PCI DSS 4.0 enforcement began March 31, 2025. Most compliance guides treat it as a checkbox exercise — this one shows exactly how AI fraud detection maps to the new requirements.",
+      content:
+        "## PCI DSS 4.0: What Changed and Why It Matters\n\nThe Payment Card Industry Data Security Standard version 4.0 introduces 64 new requirements compared to v3.2.1. For fraud teams, the most impactful changes relate to continuous monitoring (Requirement 10.7), targeted risk analysis (Requirement 12.3), and automated threat detection.",
+    },
+    eeatBreakdown: {
+      experience: {
+        score: 8.1,
+        label: "Experience",
+        feedback:
+          "Excellent use of specific PCI DSS requirement numbers. Real-world compliance scenarios add strong practical credibility.",
+      },
+      expertise: {
+        score: 8.5,
+        label: "Expertise",
+        feedback:
+          "Deep regulatory knowledge is evident. Consider adding QSA perspective or quote.",
+      },
+      authority: {
+        score: 8.2,
+        label: "Authoritativeness",
+        feedback:
+          "References PCI SSC, Visa, and Mastercard directly. Link to official PCI SSC documentation.",
+      },
+      trust: {
+        score: 8.4,
+        label: "Trustworthiness",
+        feedback:
+          "Well-balanced coverage of requirements. Includes important disclaimer about consulting QSAs.",
+      },
+    },
+    meta: {
+      title:
+        "PCI DSS 4.0 & AI Fraud Detection: Complete Compliance Guide [2026]",
+      description:
+        "Learn how AI fraud detection maps to PCI DSS 4.0 requirements. Practical checklist, implementation timeline, and compliance pitfalls to avoid.",
+      og_title: "PCI DSS 4.0 AI Compliance Guide for Fraud Teams",
+      faq: [
+        {
+          q: "Does PCI DSS 4.0 require AI for fraud detection?",
+          a: "PCI DSS 4.0 does not mandate AI specifically, but its continuous monitoring requirements are most efficiently met with AI-powered systems.",
+        },
+      ],
+    },
   },
   {
-    id: 'cb-003', title: 'Featurespace vs Feedzai vs Sift: AI Fraud Detection Compared', keyword: 'AI fraud detection comparison', status: 'published', eeat: 8.1, words: 2380, author: 'Jordan Kim', created: 'Feb 20, 2026', publishedOn: 'Feb 22, 2026', cluster: 'Buyer Guides',
-    outline: { sections: [{ heading: 'Evaluation Criteria', type: 'h2' }, { heading: 'Featurespace Deep Dive', type: 'h2' }, { heading: 'Feedzai Analysis', type: 'h2' }, { heading: 'Sift Review', type: 'h2' }, { heading: 'Scoring Matrix', type: 'h2' }] },
-    article: { excerpt: "After analyzing 3 leading AI fraud detection platforms across 8 evaluation criteria, here's what mid-market banks actually need to know.", content: '' },
-    eeatBreakdown: { experience: { score: 8.0, label: 'Experience', feedback: 'Strong practical evaluation criteria. Consider adding demo experience notes.' }, expertise: { score: 8.2, label: 'Expertise', feedback: 'Technical scoring matrix is excellent. Well-researched across all platforms.' }, authority: { score: 7.9, label: 'Authoritativeness', feedback: 'Independent perspective is a strength. Add methodology transparency section.' }, trust: { score: 8.3, label: 'Trustworthiness', feedback: 'Balanced across all vendors with clear scoring criteria.' } },
-    meta: { title: 'Featurespace vs Feedzai vs Sift (2026): Unbiased Comparison', description: 'Independent comparison of 3 top AI fraud detection platforms across 8 criteria. Scoring matrix and mid-market recommendation included.', og_title: 'AI Fraud Detection Platform Comparison 2026', faq: [] },
+    id: "cb-003",
+    title: "Featurespace vs Feedzai vs Sift: AI Fraud Detection Compared",
+    keyword: "AI fraud detection comparison",
+    status: "published",
+    eeat: 8.1,
+    words: 2380,
+    author: "Jordan Kim",
+    created: "Feb 20, 2026",
+    publishedOn: "Feb 22, 2026",
+    cluster: "Buyer Guides",
+    outline: {
+      sections: [
+        { heading: "Evaluation Criteria", type: "h2" },
+        { heading: "Featurespace Deep Dive", type: "h2" },
+        { heading: "Feedzai Analysis", type: "h2" },
+        { heading: "Sift Review", type: "h2" },
+        { heading: "Scoring Matrix", type: "h2" },
+      ],
+    },
+    article: {
+      excerpt:
+        "After analyzing 3 leading AI fraud detection platforms across 8 evaluation criteria, here's what mid-market banks actually need to know.",
+      content: "",
+    },
+    eeatBreakdown: {
+      experience: {
+        score: 8.0,
+        label: "Experience",
+        feedback:
+          "Strong practical evaluation criteria. Consider adding demo experience notes.",
+      },
+      expertise: {
+        score: 8.2,
+        label: "Expertise",
+        feedback:
+          "Technical scoring matrix is excellent. Well-researched across all platforms.",
+      },
+      authority: {
+        score: 7.9,
+        label: "Authoritativeness",
+        feedback:
+          "Independent perspective is a strength. Add methodology transparency section.",
+      },
+      trust: {
+        score: 8.3,
+        label: "Trustworthiness",
+        feedback: "Balanced across all vendors with clear scoring criteria.",
+      },
+    },
+    meta: {
+      title: "Featurespace vs Feedzai vs Sift (2026): Unbiased Comparison",
+      description:
+        "Independent comparison of 3 top AI fraud detection platforms across 8 criteria. Scoring matrix and mid-market recommendation included.",
+      og_title: "AI Fraud Detection Platform Comparison 2026",
+      faq: [],
+    },
   },
   {
-    id: 'cb-004', title: 'Real-Time Payment Fraud Detection: Architecture Guide for FedNow', keyword: 'real-time payment fraud detection', status: 'scheduled', scheduledFor: 'Mar 5, 2026', eeat: 7.6, words: 1950, author: 'Jordan Kim', created: 'Feb 27, 2026', cluster: 'Technology Guides',
-    outline: { sections: [{ heading: "FedNow's Fraud Challenge", type: 'h2' }, { heading: 'Architecture Blueprint', type: 'h2' }, { heading: 'Sub-Second Scoring Requirements', type: 'h2' }, { heading: 'Integration Patterns', type: 'h2' }] },
-    article: { excerpt: "FedNow requires fraud decisions in under 1 second. Most existing fraud detection architectures weren't built for this constraint. Here's the technical blueprint.", content: '' },
-    eeatBreakdown: { experience: { score: 7.2, label: 'Experience', feedback: 'Add specific latency benchmarks from real FedNow integrations. Architecture diagrams would strengthen this score.' }, expertise: { score: 8.0, label: 'Expertise', feedback: 'Excellent technical depth on streaming analytics. Strong use of Kafka and ISO 20022 references.' }, authority: { score: 7.5, label: 'Authoritativeness', feedback: 'Reference Federal Reserve FedNow documentation directly.' }, trust: { score: 7.7, label: 'Trustworthiness', feedback: 'Technically accurate content. Add performance benchmarks with testing methodology.' } },
-    meta: { title: 'FedNow Real-Time Fraud Detection Architecture Guide [2026]', description: 'Technical blueprint for sub-second fraud detection on FedNow instant payments. Streaming architecture and latency optimization guide.', og_title: 'FedNow Fraud Detection: Real-Time Architecture', faq: [] },
+    id: "cb-004",
+    title: "Real-Time Payment Fraud Detection: Architecture Guide for FedNow",
+    keyword: "real-time payment fraud detection",
+    status: "scheduled",
+    scheduledFor: "Mar 5, 2026",
+    eeat: 7.6,
+    words: 1950,
+    author: "Jordan Kim",
+    created: "Feb 27, 2026",
+    cluster: "Technology Guides",
+    outline: {
+      sections: [
+        { heading: "FedNow's Fraud Challenge", type: "h2" },
+        { heading: "Architecture Blueprint", type: "h2" },
+        { heading: "Sub-Second Scoring Requirements", type: "h2" },
+        { heading: "Integration Patterns", type: "h2" },
+      ],
+    },
+    article: {
+      excerpt:
+        "FedNow requires fraud decisions in under 1 second. Most existing fraud detection architectures weren't built for this constraint. Here's the technical blueprint.",
+      content: "",
+    },
+    eeatBreakdown: {
+      experience: {
+        score: 7.2,
+        label: "Experience",
+        feedback:
+          "Add specific latency benchmarks from real FedNow integrations. Architecture diagrams would strengthen this score.",
+      },
+      expertise: {
+        score: 8.0,
+        label: "Expertise",
+        feedback:
+          "Excellent technical depth on streaming analytics. Strong use of Kafka and ISO 20022 references.",
+      },
+      authority: {
+        score: 7.5,
+        label: "Authoritativeness",
+        feedback: "Reference Federal Reserve FedNow documentation directly.",
+      },
+      trust: {
+        score: 7.7,
+        label: "Trustworthiness",
+        feedback:
+          "Technically accurate content. Add performance benchmarks with testing methodology.",
+      },
+    },
+    meta: {
+      title: "FedNow Real-Time Fraud Detection Architecture Guide [2026]",
+      description:
+        "Technical blueprint for sub-second fraud detection on FedNow instant payments. Streaming architecture and latency optimization guide.",
+      og_title: "FedNow Fraud Detection: Real-Time Architecture",
+      faq: [],
+    },
   },
-]
+];
 
 // ===== CALENDAR DATA =====
 export const calendarItems = [

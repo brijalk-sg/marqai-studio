@@ -69,3 +69,38 @@
     min-height: 100dvh;
   }
 }
+
+/* Brief article HTML content styles */
+.brief-article-html h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 16px 0 8px;
+}
+
+.brief-article-html h3 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin: 14px 0 6px;
+}
+
+.brief-article-html p {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.8;
+  margin: 0 0 12px;
+}
+
+.brief-article-html ul,
+.brief-article-html ol {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.8;
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+
+.brief-article-html li {
+  margin-bottom: 4px;
+}

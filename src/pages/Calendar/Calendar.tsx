@@ -43,13 +43,23 @@ export const Calendar = () => {
   const location = useLocation()
   const [calView, setCalView] = useState<"month" | "week" | "day">("month")
   const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 1))
-  const [events, setEvents] = useState<CalendarEvent[]>(initialEvents)
+  const [events, setEvents] = useState<CalendarEvent[]>(() => {
+    try {
+      const stored = localStorage.getItem("marqai_calendar_events")
+      if (stored) return JSON.parse(stored) as CalendarEvent[]
+    } catch { /* ignore */ }
+    return initialEvents
+  })
   const [showForm, setShowForm] = useState(false)
   const [editEvent, setEditEvent] = useState<CalendarEvent | null>(null)
   const [formData, setFormData] = useState({ title: "", type: "blog", status: "scheduled", date: "", time: "10:00", description: "" })
   const [selectedDayEvents, setSelectedDayEvents] = useState<string | null>(null)
 
   const today = new Date(2026, 2, 1)
+
+  useEffect(() => {
+    localStorage.setItem("marqai_calendar_events", JSON.stringify(events))
+  }, [events])
 
   // Handle incoming brief from ContentStudio
   useEffect(() => {
@@ -63,7 +73,7 @@ export const Calendar = () => {
         time: "10:00",
         description: `Content brief: ${state.scheduleBrief.keyword}`,
       })
-      setShowForm(true)
+      setShowForm(true) 
       window.history.replaceState({}, document.title)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
