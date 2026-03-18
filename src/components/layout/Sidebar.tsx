@@ -1,4 +1,4 @@
-import { useState } from 'react'
+Set OPENAI_API_KEY in server/.env to get detailed AI suggestions
 import { NavLink, useLocation } from 'react-router-dom'
 import { Icon } from '../ui'
 import { NAV_ITEMS } from './navigation'
